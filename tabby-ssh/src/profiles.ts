@@ -114,10 +114,17 @@ export class SSHProfilesService extends QuickConnectProfileProvider<SSHProfile> 
         let user: string|undefined = undefined
         let host = query
         let port = 22
+        let password: string|undefined = undefined
+        let auth: null|'password' = null;
         if (host.includes('@')) {
             const parts = host.split(/@/g)
             host = parts[parts.length - 1]
             user = parts.slice(0, parts.length - 1).join('@')
+            if (user.includes(":")) {
+                user = user.split(/:/g)[0]
+                password = user.split(/:/g)[1]
+                auth = 'password'
+            }
         }
         if (host.includes('[')) {
             port = parseInt(host.split(']')[1].substring(1))
@@ -134,6 +141,8 @@ export class SSHProfilesService extends QuickConnectProfileProvider<SSHProfile> 
                 host,
                 user,
                 port,
+                password,
+                auth,
             },
         }
     }
