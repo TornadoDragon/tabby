@@ -112,18 +112,19 @@ export class SSHProfilesService extends QuickConnectProfileProvider<SSHProfile> 
 
     quickConnect (query: string): PartialProfile<SSHProfile> {
         let user: string|undefined = undefined
+        let password: string|undefined = undefined
         let host = query
         let port = 22
-        let password: string|undefined = undefined
-        let auth: null|'password' = null
         if (host.includes('@')) {
             const parts = host.split(/@/g)
             host = parts[parts.length - 1]
             user = parts.slice(0, parts.length - 1).join('@')
-            if (user.includes(':')) {
-                user = user.split(/:/g)[0]
-                password = user.split(/:/g)[1]
-                auth = 'password'
+
+            // Extract password if provided in format user:password
+            if (user && user.includes(':')) {
+                const userParts = user.split(':')
+                user = userParts[0]
+                password = userParts[1]
             }
         }
         if (host.includes('[')) {
@@ -142,7 +143,7 @@ export class SSHProfilesService extends QuickConnectProfileProvider<SSHProfile> 
                 user,
                 port,
                 password,
-                auth,
+                auth: password ? 'password' : undefined,
             },
         }
     }
@@ -150,7 +151,11 @@ export class SSHProfilesService extends QuickConnectProfileProvider<SSHProfile> 
     intoQuickConnectString (profile: SSHProfile): string|null {
         let s = profile.options.host
         if (profile.options.user !== 'root') {
-            s = `${profile.options.user}@${s}`
+            if (profile.options.password) {
+                s = `${profile.options.user}:${profile.options.password}@${s}`
+            } else {
+                s = `${profile.options.user}@${s}`
+            }
         }
         if (profile.options.port !== 22) {
             s = `${s}:${profile.options.port}`
