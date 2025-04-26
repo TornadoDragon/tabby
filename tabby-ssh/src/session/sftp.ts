@@ -4,6 +4,7 @@ import { posix as posixPath } from 'path'
 import { Injector } from '@angular/core'
 import { FileDownload, FileUpload, Logger, LogService } from 'tabby-core'
 import * as russh from 'russh'
+import { SFTPFileType } from 'russh'
 
 export interface SFTPFile {
     name: string
@@ -74,8 +75,8 @@ export class SFTPSession {
         return {
             name: posixPath.basename(p),
             fullPath: p,
-            isDirectory: stats.type === russh.SFTPFileType.Directory,
-            isSymlink: stats.type === russh.SFTPFileType.Symlink,
+            isDirectory: stats.type === SFTPFileType.Directory,
+            isSymlink: stats.type === SFTPFileType.Symlink,
             mode: stats.permissions ?? 0,
             size: stats.size,
             modified: new Date((stats.mtime ?? 0) * 1000),
@@ -156,8 +157,8 @@ export class SFTPSession {
         return {
             fullPath: p,
             name: posixPath.basename(p),
-            isDirectory: entry.metadata.type === russh.SFTPFileType.Directory,
-            isSymlink: entry.metadata.type === russh.SFTPFileType.Symlink,
+            isDirectory: entry.metadata.type === SFTPFileType.Directory,
+            isSymlink: entry.metadata.type === SFTPFileType.Symlink,
             mode: entry.metadata.permissions ?? 0,
             size: entry.metadata.size,
             modified: new Date((entry.metadata.mtime ?? 0) * 1000),

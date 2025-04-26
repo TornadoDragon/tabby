@@ -6,6 +6,9 @@ export function parseArgs (argv: string[], cwd: string): any {
     }
 
     return require('yargs/yargs')(argv.slice(1))
+        .parserConfiguration({
+            'short-option-groups': false,
+        })
         .usage('tabby [command] [arguments]')
         .command('open [directory]', 'open a shell in a directory', {
             directory: { type: 'string', 'default': cwd },
@@ -47,6 +50,16 @@ export function parseArgs (argv: string[], cwd: string): any {
         .option('hidden', {
             describe: 'Start minimized',
             type: 'boolean',
+        })
+        .option('url', {
+            alisa: 'url',
+            describe: 'Connect by directly entering a URL',
+            type: 'string',
+        })
+        .option('newtab', {
+            alisa: 'newtab',
+            describe: 'Create a new tab with specified name',
+            type: 'string',
         })
         .help('help')
         .parse()
