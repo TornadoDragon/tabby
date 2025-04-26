@@ -88,7 +88,7 @@ export class ProfileCLIHandler extends CLIHandler {
         // Map protocol to provider ID
         const protocolToProviderId: Record<string, string> = {
             'ssh': 'ssh',
-            'telnet': 'telnet'
+            'telnet': 'telnet',
         }
 
         const providerId = protocolToProviderId[protocol] || 'ssh'
