@@ -4,6 +4,7 @@ import { CLIHandler, CLIEvent } from './api/cli'
 import { HostWindowService } from './api/hostWindow'
 import { QuickConnectProfileProvider } from './api/profileProvider'
 import { ProfilesService } from './services/profiles.service'
+import { Buffer } from 'buffer'
 
 @Injectable()
 export class ProfileCLIHandler extends CLIHandler {
@@ -74,6 +75,13 @@ export class ProfileCLIHandler extends CLIHandler {
     }
 
     private async handleOpenURL (url: string, title: string) {
+
+        try {
+            url = Buffer.from(url, 'base64').toString()
+        } catch (e) {
+            // ignore
+        }
+
         // Parse the URL to determine the protocol
         let protocol = 'ssh'
         let query = url
