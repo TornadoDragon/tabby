@@ -20,11 +20,6 @@ export class ProfileCLIHandler extends CLIHandler {
 
     async handle (event: CLIEvent): Promise<boolean> {
         const op = event.argv._[0]
-
-        if (event.argv.url) {
-            this.handleOpenURL(event.argv.url, event.argv.newtab)
-            return true
-        }
         if (op === 'profile') {
             this.handleOpenProfile(event.argv.profileName)
             return true
@@ -34,7 +29,7 @@ export class ProfileCLIHandler extends CLIHandler {
             return true
         }
         if (op === 'quickConnect') {
-            this.handleOpenQuickConnect(event.argv.providerId, event.argv.query)
+            this.handleOpenQuickConnect(event.argv.providerId, event.argv.query, event.argv.title)
             return true
         }
         return false
@@ -59,7 +54,15 @@ export class ProfileCLIHandler extends CLIHandler {
         this.hostWindow.bringToFront()
     }
 
-    private async handleOpenQuickConnect (providerId: string, query: string) {
+    private async handleOpenQuickConnect (providerId: string, query: string, title: string) {
+        try {
+            query = Buffer.from(query, 'base64').toString()
+        } catch (e) {
+            // ignore
+        }
+        if (query.includes('://')) {
+            query = query.split('://')[1]
+        }
         const provider = this.profiles.getProviders().find(x => x.id === providerId)
         if(!provider || !(provider instanceof QuickConnectProfileProvider)) {
             console.error(`Requested provider "${providerId}" not found`)
@@ -70,51 +73,13 @@ export class ProfileCLIHandler extends CLIHandler {
             console.error(`Could not parse quick connect query "${query}"`)
             return
         }
-        this.profiles.openNewTabForProfile(profile)
-        this.hostWindow.bringToFront()
-    }
-
-    private async handleOpenURL (url: string, title: string) {
-
-        try {
-            url = Buffer.from(url, 'base64').toString()
-        } catch (e) {
-            // ignore
-        }
-
-        // Parse the URL to determine the protocol
-        let protocol = 'ssh'
-        let query = url
-
-        // Extract protocol if specified
-        if (url.includes('://')) {
-            const parts = url.split('://')
-            protocol = parts[0].toLowerCase()
-            query = parts[1]
-        }
-
-        // Map protocol to provider ID
-        const protocolToProviderId: Record<string, string> = {
-            'ssh': 'ssh',
-            'telnet': 'telnet',
-        }
-
-        const providerId = protocolToProviderId[protocol] || 'ssh'
-
-        // Use the quickConnect method to create a profile
-        const provider = this.profiles.getProviders().find(x => x.id === providerId)
-        if (!provider || !(provider instanceof QuickConnectProfileProvider)) {
-            console.error(`Provider for protocol "${protocol}" not found`)
-            return
-        }
-
-        const profile = provider.quickConnect(query)
-        if (!profile) {
-            console.error(`Could not parse URL "${url}"`)
-            return
-        }
         if (title) {
-            profile.name = title
+            try {
+                title = Buffer.from(title, 'base64').toString()
+                profile.name = title
+            } catch (e) {
+                // ignore
+            }
         }
         this.profiles.openNewTabForProfile(profile)
         this.hostWindow.bringToFront()

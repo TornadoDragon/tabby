@@ -31,13 +31,16 @@ export function parseArgs (argv: string[], cwd: string): any {
         .command('recent [index]', 'open a tab with a recent profile', {
             profileNumber: { type: 'number' },
         })
-        .command('quickConnect <providerId> <query>', 'open a tab for specified quick connect provider', yargs => {
+        .command('quickConnect <providerId> <query> <title>', 'open a tab for specified quick connect provider', yargs => {
             return yargs.positional('providerId', {
                 describe: 'The name of a quick connect profile provider',
                 type: 'string',
                 choices: ['ssh', 'telnet'],
             }).positional('query', {
                 describe: 'The quick connect query string',
+                type: 'string',
+            }).positional('title', {
+                describe: 'The quick connect tab title',
                 type: 'string',
             })
         })
@@ -50,16 +53,6 @@ export function parseArgs (argv: string[], cwd: string): any {
         .option('hidden', {
             describe: 'Start minimized',
             type: 'boolean',
-        })
-        .option('url', {
-            alisa: 'url',
-            describe: 'Connect by directly entering a URL',
-            type: 'string',
-        })
-        .option('newtab', {
-            alisa: 'newtab',
-            describe: 'Create a new tab with specified name',
-            type: 'string',
         })
         .help('help')
         .parse()
