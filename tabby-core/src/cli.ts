@@ -73,6 +73,9 @@ export class ProfileCLIHandler extends CLIHandler {
             console.error(`Could not parse quick connect query "${query}"`)
             return
         }
+        if (profile.options) {
+            profile.options.reuseSession = false
+        }
         if (title) {
             try {
                 title = Buffer.from(title, 'base64').toString()
